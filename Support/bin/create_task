@@ -1,0 +1,28 @@
+#!/usr/bin/osascript
+
+-- Useful resource for Evernote scripting: http://dev.evernote.com/doc/articles/applescript.php
+
+on run argv
+	set theFilename to item 1 of argv
+	set theName to do shell script "head -n1 " & theFilename
+	set theMessageURL to do shell script "sed -n '2p;2q' " & theFilename
+	set theText to do shell script "tail -n+3 " & theFilename
+
+	tell application "Evernote"
+		activate
+		set theNote to (create note with text theText title theName)
+		-- set theNote to (create note with text theText title theName notebook "Inbox")
+		-- Note (benny): I removed the “notebook "Inbox"” part, because it didn't work if another notebook existed with "Inbox" in its name
+		--  Ideally, the notebook used should be configurable.
+
+		-- Alternative: with html "<strong>Here is my new HTML note</strong>"
+		set the source URL of theNote to theMessageURL
+
+		-- When MailMate is better at providing tag names then this might be useful:
+		-- set theTag to make tag with properties {name:"AppleScriptTag1"}
+		-- assign theTag to theNote
+		-- assign {theTag, theTag2} to theNote
+
+		open note window with theNote
+	end tell
+end run
